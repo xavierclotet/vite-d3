@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>D3 Bar Chart</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <style>
+      .bar-chart {
+        font-family: Arial, sans-serif;
+        border: 1px solid black;
+      }
+      .value-label {
+        font-size: 24px;
+        font-weight: bold;
+      }
+      .category-label {
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="chart"></div>
+    <script>
+      // Data
+      const data = [
+        { category: 'Past Due', value: 860, color: '#D32F2F' },
+        { category: 'Due', value: 140, color: '#1976D2' },
+      ];
+
+      // Set up dimensions
+      const width = 300;
+      const height = 250;
+      const margin = { top: 20, right: 20, bottom: 60, left: 40 };
+
+      // Create SVG
+      const svg = d3
+        .select('#chart')
+        .append('svg')
+        .attr('width', width)
+        .attr('height', height)
+        .attr('class', 'bar-chart');
+
+      // Set up scales
+      const x = d3
+        .scaleBand()
+        .range([margin.left, width - margin.right])
+        .padding(0.6); // padding between bars
+
+      const y = d3.scaleLinear().range([height - margin.bottom, margin.top]);
+
+      // Set domains
+      x.domain(data.map((d) => d.category));
+      y.domain([0, d3.max(data, (d) => d.value)]);
+
+      // Create bars
+      svg
+        .selectAll('.bar')
+        .data(data)
+        .join('rect')
+        .attr('class', 'bar')
+        .attr('x', (d) => x(d.category))
+        .attr('y', (d) => y(d.value))
+        .attr('width', x.bandwidth())
+        .attr('height', (d) => height - margin.bottom - y(d.value))
+        .attr('fill', (d) => d.color);
+
+      // Add category labels under the bars
+      svg
+        .selectAll('.category-label')
+        .data(data)
+        .join('text')
+        .attr('class', 'category-label')
+        .attr('x', (d) => x(d.category))
+        .attr('y', height - margin.bottom + 25)
+        .attr('text-anchor', 'start')
+        .attr('fill', (d) => d.color)
+        .text((d) => d.category);
+
+      // Add value number below the labels
+      svg
+        .selectAll('.value-label')
+        .data(data)
+        .join('text')
+        .attr('class', 'value-label')
+        .attr('x', (d) => x(d.category))
+        .attr('y', height - margin.bottom + 55)
+        .attr('text-anchor', 'start')
+        .attr('fill', (d) => d.color)
+        .text((d) => d.value);
+
+      // Remove x-axis
+      svg.select('.domain').remove();
+      svg.selectAll('.tick').remove();
+    </script>
+  </body>
+</html>
